@@ -28,11 +28,15 @@ for _name in ("ffmpeg", "ffprobe"):
     else:
         print("[build.spec] 未找到 %s，本次不打包 ffmpeg" % _p)
 
+ICON = "wavep.ico" if os.path.exists("wavep.ico") else None
+ICNS = "wavep.icns" if os.path.exists("wavep.icns") else None
+datas = [(ICON, ".")] if ICON else []
+
 a = Analysis(
     ["waveform_ui.py"],
     pathex=[],
     binaries=binaries,
-    datas=[],
+    datas=datas,
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -55,6 +59,7 @@ _common = dict(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=ICON if PLAT == "win" else None,
 )
 
 if PLAT == "mac":
@@ -62,7 +67,7 @@ if PLAT == "mac":
     exe = EXE(pyz, a.scripts, [], exclude_binaries=True, **_common)
     coll = COLLECT(exe, a.binaries, a.datas, strip=False, upx=False,
                    upx_exclude=[], name=APP_NAME)
-    app = BUNDLE(coll, name=APP_NAME + ".app", icon=None,
+    app = BUNDLE(coll, name=APP_NAME + ".app", icon=ICNS,
                  bundle_identifier="com.wavepainter.converter")
 else:
     # Windows / Linux 保持单文件，和你现在发出去的形式一致

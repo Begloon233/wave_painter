@@ -20,22 +20,41 @@ if os.name == "nt":
 
     subprocess.Popen = _NoConsolePopen
 
+import ctypes
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("Begloon.WavePainter.1")
+
+from PyQt5 import QtGui
 import numpy as np
 from pydub import AudioSegment
 
 from PyQt5.QtCore import QEasingCurve, QPointF, QPropertyAnimation, QRectF, QUrl, Qt
 from PyQt5.QtGui import (
     QColor, QDesktopServices, QFont, QFontMetrics, QPalette, QPainter,
-    QPainterPath, QPen,
+    QPainterPath, QPen, QIcon
 )
 from PyQt5.QtWidgets import (
     QApplication, QCheckBox, QComboBox, QDoubleSpinBox, QFileDialog,
     QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLineEdit, QMessageBox,
     QPushButton, QSizePolicy, QSpinBox, QStyleFactory, QToolButton, QVBoxLayout,
-    QWidget,
+    QWidget
 )
 
 import core
+
+
+def resource_path(name):
+    bases = []
+    meipass = getattr(sys, "_MEIPASS", None)
+    if meipass:
+        bases.append(meipass)
+    bases.append(os.path.dirname(os.path.abspath(sys.argv[0] or "")))
+    bases.append(os.path.dirname(os.path.abspath(__file__)))
+    bases.append(os.getcwd())
+    for base in bases:
+        p = os.path.join(base, name)
+        if os.path.exists(p):
+            return p
+    return os.path.join(meipass or os.getcwd(), name)
 
 SIZE_MAX = 16777215
 TEXT_MUTED = "#6b6b6b"
@@ -440,6 +459,8 @@ class MainWindow(QWidget):
         root = QVBoxLayout(self)
         root.setContentsMargins(6, 6, 6, 6)
         root.setSpacing(5)
+
+        self.setWindowIcon(QIcon(resource_path("wavep.ico")))
 
         self.folder_check = QCheckBox("选择谱面文件夹", self)
         self.path_label = QLabel("未选择文件夹", self)
@@ -865,6 +886,8 @@ def main():
         QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
         QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     app = apply_style(QApplication(sys.argv))
+    # 应用级图标：任务栏、消息框、所有子窗口都会继承
+    app.setWindowIcon(QIcon(resource_path("wavep.ico")))
     win = MainWindow()
     win.show()
     check_ffmpeg(win)
