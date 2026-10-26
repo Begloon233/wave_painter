@@ -1,8 +1,8 @@
 ![icon](./wavep.ico)
 # 音频黑线转换器 | Wave Painter
 
-一个可以将将音频文件转为 `*.aff` 文件中的 arc 的小工具。
-支持 OGG / MP3 / WAV 格式
+一个可以将将音频文件转为 `*.aff` 文件中的 arc 的小工具。  
+支持 OGG / MP3 / WAV 格式   
 需要预先安装 ffmpeg
 
 ## 使用技巧
@@ -25,5 +25,5 @@
 目前暂不支持读取在 songlist 中使用 `audioOverride` 而设置的差分音频（如 `3.ogg` ），至少这是后续的开发方向
 
 ## 协议与声明
-该工具遵循 MIT License 协议
-该项目为 Begloon 的个人项目，仅对 `.aff` 文件的处理相关，与其他游戏无关联
+该工具遵循 MIT License 协议   
+该项目为 Begloon 的个人项目，仅对 `.aff` 文件的处理相关，与其他游戏无关联 
