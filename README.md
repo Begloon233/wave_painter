@@ -1,7 +1,7 @@
 ![icon](./wavep.ico)
 # 音频黑线转换器 | Wave Painter
 
-一个可以将将音频文件转为 `*.aff` 文件中的 arc 的小工具。  
+一个可以将音频文件转为 `*.aff` 文件中的 arc 的小工具。  
 支持 OGG / MP3 / WAV 格式   
 需要预先安装 ffmpeg
 
