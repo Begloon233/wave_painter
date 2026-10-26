@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+build/
+dist/
+*.bak
+*.spec.bak
+tools/ffmpeg/*
+!tools/ffmpeg/.gitkeep
+Arcade/
+*.wav
+*.mp3
+*.aff
