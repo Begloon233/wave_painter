@@ -190,7 +190,9 @@ def process_c(setting, isMirrored, isEnforceBased, sr, m_out, time_start, sr_tim
         if isMirrored:
             if not setting in ("全波形", "全波形 0ms"):
                 base += pos_interval[1]-pos_interval[0]
-            delta = -2*delta
+                delta = -delta
+            else:
+                delta = -delta/2
 
         line_pos = base + delta
 
@@ -274,7 +276,10 @@ def core(chart_path, music, time_interval, sr_time, setting, isMirrored, isEnfor
                 "timing":[],
                 "scenecontrol":[]
             })
-    offset = chart["META"]["AudioOffset"]
+    if "AudioOffset" in chart["META"]:
+        offset = chart["META"]["AudioOffset"]
+    else:
+        offset = 0
     for i in arc_json:
         i["startTime"] -= offset
         i["endTime"] -= offset
