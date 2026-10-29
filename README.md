@@ -5,7 +5,7 @@
 支持 OGG / MP3 / WAV 格式 
 
 > [!IMPORTANT]  
-> 需预先安装 ffmpeg （工具会提示安装方法）
+> 需预先安装 ffmpeg （工具会提示安装方法）  
 > 目前仅编译了 Windows 的可运行文件，其他系统请自行用 Pyinstaller 进行编译
 
 
