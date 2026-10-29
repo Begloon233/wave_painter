@@ -2,8 +2,12 @@
 # 音频黑线转换器 | Wave Painter
 
 一个可以将音频文件转为 `*.aff` 文件中的 arc 的小工具。  
-支持 OGG / MP3 / WAV 格式   
-需要预先安装 ffmpeg
+支持 OGG / MP3 / WAV 格式 
+
+> [!IMPORTANT]  
+> 需预先安装 ffmpeg （工具会提示安装方法）
+> 目前仅编译了 Windows 的可运行文件，其他系统请自行用 Pyinstaller 进行编译
+
 
 ## 使用技巧
 ![转换器界面UI](image.png)
