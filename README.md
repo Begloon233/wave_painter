@@ -68,12 +68,12 @@ python -m PyInstaller --noconfirm --clean build.spec
 ```
 
 macOS 为 `~/Library/Logs/wave_painter/run.log`，Linux 为 `~/.local/state/wave_painter/run.log`。
-如果程序“点了没反应 / 一闪而过”，先看这个日志。源码运行（`py -3 waveform_ui.py`）也会写同一份日志。
+如果程序“点了没反应 / 一闪而过”，先看这个日志。源码运行（`py -3 waveform_ui.py`）也会写同一份日志
 
 ### 发布与校验
 
 推送 `v*` 或纯数字 tag（如 `v1.1.0`、`2026.10.29`）会触发 GitHub Actions 构建
-Windows / macOS（Apple Silicon、Intel）/ Linux 产物并创建 Release，附带 `SHA256SUMS.txt`。
+Windows / macOS（Apple Silicon、Intel）/ Linux 产物并创建 Release，附带 `SHA256SUMS.txt`  
 校验下载文件：
 
 ```cmd
@@ -82,14 +82,14 @@ certutil -hashfile wave_painter.exe SHA256
 
 ## 启动失败排查
 
-1. 先核对文件哈希与 Release 里的 `SHA256SUMS.txt` 是否一致，不一致说明下载不完整或被改写。
-2. 按上面「调试版」打包，在 cmd.exe 中运行 `wave_painter_debug.exe`，查看 Python 异常。
-3. 查看日志 `%LOCALAPPDATA%\wave_painter\run.log`。
-4. 若提示缺少 `ffmpeg`，安装 ffmpeg 并加入 `PATH`，或放到程序同目录的 `tools/ffmpeg/<平台>/`。
-5. 把调试版控制台输出 + `run.log` 一起贴到 issue 里。
+1. 先核对文件哈希与 Release 里的 `SHA256SUMS.txt` 是否一致，不一致说明下载不完整或被改写
+2. 按上面「调试版」打包，在 cmd.exe 中运行 `wave_painter_debug.exe`，查看 Python 异常
+3. 查看日志 `%LOCALAPPDATA%\wave_painter\run.log`
+4. 若提示缺少 `ffmpeg`，安装 ffmpeg 并加入 `PATH`，或放到程序同目录的 `tools/ffmpeg/<平台>/`
+5. 把调试版控制台输出 + `run.log` 一起贴到 issue 里
 
 > 打包产物没有数字签名，个别杀毒软件会对 PyInstaller 单文件包误报，或拦截它解压到
-> `%TEMP%\_MEIxxxx` 的行为。被拦截时请放行，或先用调试版确认是不是程序本身的问题。
+> `%TEMP%\_MEIxxxx` 的行为。被拦截时请放行，或先用调试版确认是不是程序本身的问题
 
 ## 协议与声明
 该工具遵循 MIT License 协议   
