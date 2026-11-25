@@ -72,8 +72,9 @@ macOS 为 `~/Library/Logs/wave_painter/run.log`，Linux 为 `~/.local/state/wave
 
 ### 发布与校验
 
-推送 `v*` 或纯数字 tag（如 `v1.1.0`、`2026.10.29`）会触发 GitHub Actions 构建
-Windows / macOS（Apple Silicon、Intel）/ Linux 产物并创建 Release，附带 `SHA256SUMS.txt`  
+推送 `v*` tag（如 `v1.1.0`）会触发 GitHub Actions 构建
+Windows / macOS（Apple Silicon、Intel）/ Linux 产物并创建 Release。Release 附件里除了各平台 zip，
+还有单独的 `wave_painter.exe` 方便直接下载，`SHA256SUMS.txt` 覆盖两者。  
 校验下载文件：
 
 ```cmd

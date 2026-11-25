@@ -106,6 +106,16 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+      # wave_painter.exe 单独作为 Release 附件发布，不强制用户下载整个 zip
+      - name: 上传独立 exe（仅 Windows）
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave-windows-exe
+          path: dist/wave_painter.exe
+          if-no-files-found: error
+          retention-days: 14
+
   # ------------------------------------------------------------------ #
   # 打 tag 时，把所有平台的 zip 合成一个 Release
   # ------------------------------------------------------------------ #
@@ -119,16 +129,17 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - name: 生成 zip 的校验和
+      - name: 生成校验和（zip + 独立 exe）
         run: |
           cd dist
           ls -lh
-          sha256sum *.zip > SHA256SUMS.txt
+          sha256sum *.zip wave_painter.exe > SHA256SUMS.txt
           cat SHA256SUMS.txt
 
       - uses: softprops/action-gh-release@v2
         with:
           files: |
             dist/*.zip
+            dist/wave_painter.exe
             dist/SHA256SUMS.txt
           generate_release_notes: true

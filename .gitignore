@@ -10,3 +10,4 @@ Arcade/
 *.wav
 *.mp3
 *.aff
+.build_release.log
