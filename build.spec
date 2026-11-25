@@ -51,7 +51,9 @@ for _name in ("ffmpeg", "ffprobe"):
     if os.path.exists(_p):
         binaries.append((_p, "."))
     else:
-        print("[build.spec] 未找到 %s，本次不打包 ffmpeg" % _p)
+        # 注意：这里必须只用 ASCII。GitHub Actions 的 Windows runner 控制台是 cp1252，
+        # 打印中文会抛 UnicodeEncodeError，直接让打包步骤失败。
+        print("[build.spec] ffmpeg not bundled (not found): %s" % _p)
 
 ICON = os.path.join(HERE, "wavep.ico")
 ICON = ICON if os.path.exists(ICON) else None

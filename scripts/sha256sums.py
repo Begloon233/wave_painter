@@ -47,12 +47,12 @@ def main(argv=None):
 
     directory = args.directory
     if not os.path.isdir(directory):
-        print("目录不存在：%s" % directory, file=sys.stderr)
+        print("directory not found: %s" % directory, file=sys.stderr)
         return 1
 
     paths = collect(directory, args.recursive)
     if not paths:
-        print("目录里没有可计算的文件：%s" % directory, file=sys.stderr)
+        print("no files to hash in: %s" % directory, file=sys.stderr)
         return 1
 
     lines = []
@@ -65,7 +65,7 @@ def main(argv=None):
     output = args.output or os.path.join(directory, SUMS_NAME)
     with open(output, "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(lines) + "\n")
-    print("已写入 %s" % output)
+    print("wrote %s" % output)
     return 0
 
 

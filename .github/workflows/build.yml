@@ -15,6 +15,10 @@ permissions:
 
 env:
   PYTHON_VERSION: "3.12"
+  # Windows runner 的控制台默认是 cp1252，脚本里任何非 ASCII 输出都会 UnicodeEncodeError，
+  # 所以强制 Python 用 UTF-8 模式（stdio 也走 UTF-8）。
+  PYTHONUTF8: "1"
+  PYTHONIOENCODING: "utf-8"
 
 jobs:
   # ------------------------------------------------------------------ #
@@ -73,14 +77,12 @@ jobs:
           WP_EXE_NAME: wave_painter
         run: python -m PyInstaller --noconfirm --clean build.spec
 
-      - name: 生成 SHA256SUMS.txt
-        run: python scripts/sha256sums.py dist
-
       - name: 压缩产物（Windows）
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          Compress-Archive -Path (Join-Path dist '*') -DestinationPath (Join-Path dist '${{ matrix.artifact }}.zip') -Force
+          Compress-Archive -Path (Join-Path dist '*') -DestinationPath '${{ matrix.artifact }}.zip' -Force
+          Move-Item '${{ matrix.artifact }}.zip' dist/
 
       - name: 压缩产物（macOS，保留 .app 内的符号链接）
         if: runner.os == 'macOS'
@@ -97,6 +99,11 @@ jobs:
           zip -qry "../${{ matrix.artifact }}.zip" .
           cd ..
           mv "${{ matrix.artifact }}.zip" dist/
+
+      # 必须放在压缩之后：macOS 的 dist 里只有一个 .app 目录，
+      # 压缩前算校验和会因为“没有文件”直接失败。
+      - name: 生成 SHA256SUMS.txt
+        run: python scripts/sha256sums.py dist
 
       - name: 上传产物
         uses: actions/upload-artifact@v4
@@ -133,7 +140,8 @@ jobs:
         run: |
           cd dist
           ls -lh
-          sha256sum *.zip wave_painter.exe > SHA256SUMS.txt
+          sha256sum *.zip > SHA256SUMS.txt
+          if [ -f wave_painter.exe ]; then sha256sum wave_painter.exe >> SHA256SUMS.txt; fi
           cat SHA256SUMS.txt
 
       - uses: softprops/action-gh-release@v2
