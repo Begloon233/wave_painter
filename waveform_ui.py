@@ -8,6 +8,7 @@ import sys
 import logging
 import glob
 import re
+import time
 
 if os.name == "nt":
     _OrigPopen = subprocess.Popen
@@ -20,8 +21,15 @@ if os.name == "nt":
 
     subprocess.Popen = _NoConsolePopen
 
-import ctypes
-ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("Begloon.WavePainter.1")
+    # 任务栏图标 / AppUserModelID 只有 Windows 有；其它平台的 ctypes 没有 windll，不判断平台一 import 就崩
+    try:
+        import ctypes
+
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
+            "Begloon.WavePainter.1"
+        )
+    except Exception:  # 失败只影响任务栏分组，不影响启动
+        pass
 
 from PyQt5 import QtGui
 import numpy as np
@@ -868,20 +876,83 @@ def apply_style(app):
     return app
 
 
-logger = logging.getLogger(__name__)
-handler = logging.StreamHandler(stream=sys.stdout)
-logger.addHandler(handler)
+LOG_FILE = None
+
+
+def _log_dir():
+    """日志目录：Windows 用 %LOCALAPPDATA%，其它平台用各自的标准位置。"""
+    if os.name == "nt":
+        base = os.environ.get("LOCALAPPDATA") or os.path.expanduser("~")
+    elif sys.platform == "darwin":
+        base = os.path.join(os.path.expanduser("~"), "Library", "Logs")
+    else:
+        base = os.environ.get("XDG_STATE_HOME") or os.path.join(
+            os.path.expanduser("~"), ".local", "state")
+    return os.path.join(base, "wave_painter")
+
+
+def _setup_logging():
+    """配置日志。
+
+    console=False 打包后 sys.stdout / sys.stderr 都是 None，
+    所以日志必须落盘，否则用户报“起不来”时我们什么信息都拿不到。
+    """
+    global LOG_FILE
+    handlers = []
+    try:
+        if sys.stdout is None:
+            sys.stdout = open(os.devnull, "w", encoding="utf-8")
+        if sys.stderr is None:
+            sys.stderr = sys.stdout
+        handlers.append(logging.StreamHandler(stream=sys.stderr))
+    except Exception:
+        pass
+    try:
+        os.makedirs(_log_dir(), exist_ok=True)
+        LOG_FILE = os.path.join(_log_dir(), "run.log")
+        handlers.append(logging.FileHandler(LOG_FILE, encoding="utf-8"))
+    except Exception:
+        LOG_FILE = None
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)-7s %(name)s: %(message)s",
+        handlers=handlers,
+        force=True,
+    )
+    return logging.getLogger(__name__)
+
+
+logger = _setup_logging()
+logger.info("=" * 60)
+logger.info("启动 %s", time.strftime("%Y-%m-%d %H:%M:%S"))
+logger.info("python=%s frozen=%s meipass=%s",
+            sys.version.split()[0], getattr(sys, "frozen", False),
+            getattr(sys, "_MEIPASS", None))
+logger.info("cwd=%s", os.getcwd())
+if LOG_FILE:
+    logger.info("日志文件：%s", LOG_FILE)
+
 
 def handle_exception(exc_type, exc_value, exc_traceback):
-    
-    setErrorBox(f"{exc_type}:\n{exc_value}")
-    logger.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback)) 
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+    logger.error("未捕获的异常", exc_info=(exc_type, exc_value, exc_traceback))
+    tip = ("\n\n详细日志：" + LOG_FILE) if LOG_FILE else ""
+    try:
+        # 没有 QApplication 时构建 QMessageBox 会直接 qFatal 掉进程（Qt 的硬 abort，
+        # Python 的 except 拦不住），所以启动早期只写日志、不弹窗
+        if QApplication.instance() is not None:
+            setErrorBox(f"{exc_type.__name__}:\n{exc_value}{tip}")
+    except Exception:
+        pass
 
-sys.excepthook = handle_exception 
+sys.excepthook = handle_exception
 runCode = None
 
 
 def main():
+    logger.info("进入 main()，初始化 Qt")
     if hasattr(Qt, "AA_EnableHighDpiScaling"):
         QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
         QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
@@ -890,9 +961,17 @@ def main():
     app.setWindowIcon(QIcon(resource_path("wavep.ico")))
     win = MainWindow()
     win.show()
+    logger.info("主窗口已显示，ffmpeg=%s", find_ffmpeg() or "未找到")
     check_ffmpeg(win)
+    logger.info("进入 Qt 事件循环")
     sys.exit(app.exec_())
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except SystemExit:
+        raise
+    except BaseException:
+        logger.exception("main() 异常退出")
+        raise

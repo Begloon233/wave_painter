@@ -1,0 +1,17 @@
+# 运行 + 打包依赖（版本按 v1.0.0 发布时的环境锁定；Qt5 运行时等间接依赖由 pip 决定，
+# 因此不同机器打出来的单文件体积会有几 MB 的差异，属正常现象）
+#
+# 安装：
+#   python -m pip install -r requirements.txt
+#
+# 注意：Python 3.12（numpy 2.5.x 要求 >= 3.11）。
+# PyInstaller 只在构建时需要，CI 与本地共用这一份清单。
+# 这里不锁 PyQt5-Qt5 / PyQt5-sip：macOS arm64 需要较新的 PyQt5-Qt5，锁死反而装不上。
+
+PyQt5==5.15.11
+pydub==0.25.1
+numpy==2.5.4
+jsonaea==2026.10.27.2
+
+# 打包工具
+pyinstaller==6.22.3
